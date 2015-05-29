@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en-US">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8" />
+    <title>Cellphone Visualization</title>
+    <!-- Load Bootstrap CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/main.css" rel="stylesheet">
+</head>
+
+<body>
+    <div ng-app="myApp" ng-controller="mapCtrl" class="container-fluid">
+        <div class="row">
+            <div class="col-md-8 col-md-offset-2">
+                <form id="panel" class="form-inline">
+                    <select name="type" id="input" class="form-control" required="required" ng-model="formData.type">
+                        <option value="sql" selected="selected">Custom SQL</option>
+                        <option value="url">Custom URL Parameter</option>
+                    </select>
+                    <input type="text" name="data" id="input" class="form-control" value="" required="required" ng-model="formData.data" style="width:50%;">
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" value="1" name="polyline" ng-model="formData.polyline"> Show Polyline
+                        </label>
+                    </div>
+                    <button type="button" class="btn btn-default" ng-click="save(formData)">Execute</button>
+                </form>
+            </div>
+        </div>
+        <map class="overlay" center="-8.4095180,115.1889160" zoom="10" disable-default-u-i="false" disable-double-click-zoom="false" draggable="true" draggable-cursor="help" dragging-cursor="move" keyboard-shortcuts="false" tilt="45" map-type-id="ROADMAP">
+            <marker ng-repeat="data in datas" position="[{{data.Lat}}, {{data.Long}}]" id="{{data.Lat}}{{data.Long}}" title="{{data.Tanggal}} {{data.Jam}}" draggable="false" visible="true" clickable="true" icon="img/marker.png" category="{{data.MSISDN}}">
+            </marker>
+            <shape id="line" name="polyline" geodesic="true" stroke-color="#FF0000" stroke-opacity="1.0" stroke-weight="2" path="{{path}}"></shape>
+        </map>
+        <!-- Table-to-load-the-data Part -->
+        <!-- <table class="table">
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Tanggal</th>
+                    <th>Jam</th>
+                    <th>MSISDN</th>
+                    <th>Cellname</th>
+                    <th>Regional</th>
+                    <th>Latitude</th>
+                    <th>Longitude</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="data in datas">
+                    <td>{{ $index + 1 }}</td>
+                    <td>{{ data.Tanggal }}</td>
+                    <td>{{ data.Jam }}</td>
+                    <td>{{ data.MSISDN }}</td>
+                    <td>{{ data.Cellname }}</td>
+                    <td>{{ data.Regional }}</td>
+                    <td>{{ data.Lat }}</td>
+                    <td>{{ data.Long }}</td>
+                </tr>
+            </tbody>
+        </table> -->
+        <!-- End of Table-to-load-the-data Part -->
+    </div>
+    <!-- Load Javascript Libraries (AngularJS, JQuery, Bootstrap) -->
+    <script src="js/angular.min.js"></script>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="https://maps.google.com/maps/api/js?sensor=false"></script>
+    <script src="js/ng-map.min.js"></script>
+    <!-- There will be our javascript Application here -->
+    <!-- AngularJS Application Script Part -->
+    <script>
+    var app = angular.module('myApp', ['ngMap']);
+    app.controller('mapCtrl', function($scope, $http) {
+
+        $scope.formData = {
+            'type': 'url',
+            'data': 'column=MSISDN&operator==&data=62811100261&limit=15',
+            'polyline': false
+        };
+        /* Load 100 data secara default */
+        $http.get("http://lumen.fitra.local/?type=url&limit=100")
+            .success(function(response) {
+                $scope.datas = response;
+            });
+
+
+        /* Custom setting  */
+        $scope.save = function(formData) {
+            $scope.path = '[]';
+            if (formData.type == 'sql') {
+                $http.get("http://lumen.fitra.local/?type=sql&data=" + formData.data )
+                    .success(function(response) {
+                        $scope.datas = response;
+                        drawPolyline(formData);
+                    });
+            } else if (formData.type == 'url') {
+                $http.get("http://lumen.fitra.local/?type=url&" + formData.data)
+                    .success(function(response) {
+                        $scope.datas = response;
+                        drawPolyline(formData);
+                    });
+            }
+        };
+
+        function drawPolyline(formData) {
+            // polyline handler
+            if (formData.polyline) {
+                $scope.path = '[';
+                if (formData.polyline == 1) {
+                    // generate lat long array
+                    angular.forEach($scope.datas, function(value, key) {
+                        $scope.path += '[' + value.Lat + ',' + value.Long + ']';
+                        if (key != $scope.datas.length - 1)
+                            $scope.path += ', ';
+                    });
+
+                }
+                $scope.path += ']';
+                $scope.map.shapes.line.setMap($scope.map);
+            } else {
+                $scope.path = '';
+                $scope.map.shapes.line.setMap(null);
+            }
+        }
+    });
+    </script>
+    <!-- End of AngularJS Application Script Part -->
+</body>
+
+</html>
