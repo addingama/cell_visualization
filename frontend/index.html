@@ -25,7 +25,7 @@
                             <input type="checkbox" value="1" name="polyline" ng-model="formData.polyline"> Show Polyline
                         </label>
                     </div>
-                    <button type="button" class="btn btn-default" ng-click="save(formData)">Execute</button>
+                    <button type="button" class="btn btn-default" ng-click="direction()">Execute</button>
                 </form>
             </div>
         </div>
@@ -104,6 +104,12 @@
                     });
             }
         };
+
+        $scope.direction = function () {
+            $http.jsonp("https://maps.googleapis.com/maps/api/directions/json?origin=Gunung%20Sinabung&destination=Rumah%20Sakit%20Efaria%20Etaham").success(function(response) {
+                console.log(response);
+            });
+        }
 
         function drawPolyline(formData) {
             // polyline handler

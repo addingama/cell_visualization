@@ -8,7 +8,7 @@ use DB;
 class MapController extends Controller
 {
     public function index(Request $request) {
-        $query = '';
+        $query = 'select * from data';
         if ($request->has('type')) {
             if ($request->input('type') == 'sql') {
                 $query = $request->input('data');
