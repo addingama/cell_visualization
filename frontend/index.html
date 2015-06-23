@@ -7,6 +7,7 @@
     <title>Cellphone Visualization</title>
     <!-- Load Bootstrap CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/loading-bar.min.css" rel="stylesheet">
     <link href="css/main.css" rel="stylesheet">
 </head>
 
@@ -69,10 +70,11 @@
     <script src="js/bootstrap.min.js"></script>
     <script src="https://maps.google.com/maps/api/js?sensor=false"></script>
     <script src="js/ng-map.min.js"></script>
+    <script src="js/loading-bar.min.js"></script>
     <!-- There will be our javascript Application here -->
     <!-- AngularJS Application Script Part -->
     <script>
-    var app = angular.module('myApp', ['ngMap']);
+    var app = angular.module('myApp', ['ngMap', 'angular-loading-bar']);
     app.controller('mapCtrl', function($scope, $http) {
 
         $scope.formData = {
@@ -81,7 +83,7 @@
             'polyline': false
         };
         /* Load 100 data secara default */
-        $http.get("http://lumen.fitra.local/?type=url&limit=100")
+        $http.get("http://lumen.fitra.local?type=url&limit=500")
             .success(function(response) {
                 $scope.datas = response;
             });
@@ -91,13 +93,13 @@
         $scope.save = function(formData) {
             $scope.path = '[]';
             if (formData.type == 'sql') {
-                $http.get("http://lumen.fitra.local/?type=sql&data=" + formData.data )
+                $http.get("http://lumen.fitra.local?type=sql&data=" + formData.data )
                     .success(function(response) {
                         $scope.datas = response;
                         drawPolyline(formData);
                     });
             } else if (formData.type == 'url') {
-                $http.get("http://lumen.fitra.local/?type=url&" + formData.data)
+                $http.get("http://lumen.fitra.local?type=url&" + formData.data)
                     .success(function(response) {
                         $scope.datas = response;
                         drawPolyline(formData);
