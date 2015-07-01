@@ -10,7 +10,7 @@
 | and give it the controller to call when that URI is requested.
 |
 */
-ini_set('memory_limit','1024M');
+ini_set('memory_limit','256M');
 $app->get('/', 'App\Http\Controllers\MapController@home');
 $app->get('/index', 'App\Http\Controllers\MapController@index');
 $app->get('/tanggal', 'App\Http\Controllers\MapController@getDates');
