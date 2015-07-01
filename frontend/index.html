@@ -9,6 +9,7 @@
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="css/loading-bar.min.css" rel="stylesheet">
     <link href="css/main.css" rel="stylesheet">
+    <link href="css/jquery-ui.css" rel="stylesheet">
 </head>
 
 <body>
@@ -17,52 +18,45 @@
             <div class="col-md-8 col-md-offset-2">
                 <form id="panel" class="form-inline">
                     <select name="type" id="input" class="form-control" required="required" ng-model="formData.type">
-                        <option value="sql" selected="selected">Custom SQL</option>
-                        <option value="url">Custom URL Parameter</option>
+                        <!-- <option value="sql" selected="selected">Custom SQL</option>
+                        <option value="url">Custom URL Parameter</option> -->
+                        <option value="number" selected="selected">Number</option>
+                        <option value="range">Range</option>
                     </select>
-                    <input type="text" name="data" id="input" class="form-control" value="" required="required" ng-model="formData.data" style="width:50%;">
-                    <div class="checkbox">
+                    <select name="type" id="input" class="form-control" required="required" ng-model="formData.date">
+                        <!-- <option value="sql" selected="selected">Custom SQL</option>
+                        <option value="url">Custom URL Parameter</option> -->
+                        <option value="2014-10-6" selected="selected">6 Oktober 2014</option>
+                        <option value="2014-10-7" >7 Oktober 2014</option>
+                        <option value="2014-10-8" >8 Oktober 2014</option>
+                        <option value="2014-10-9" >9 Oktober 2014</option>
+                        <option value="2014-10-10" >10 Oktober 2014</option>
+                        <option value="2014-10-11" >11 Oktober 2014</option>
+                        <option value="2014-10-12" >12 Oktober 2014</option>
+                    </select>
+                    <input type="text" name="number" placeholder="MSISDN" id="autocomplete" class="form-control" value="" required="required" ng-model="formData.number" ng-show="checkFilterNumber()">
+                    <input type="text" name="limit" placeholder="Number count"  class="form-control" value="" required="required" ng-model="formData.limit" ng-show="!checkFilterNumber()">
+                    <input type="text" name="offset" placeholder="Offset"  class="form-control" value="" required="required" ng-model="formData.offset" ng-show="!checkFilterNumber()">
+                    <!-- <input type="text" name="data" id="input" class="form-control" value="" required="required" ng-model="formData.data" style="width:50%;"> -->
+                    <!-- <div class="checkbox">
                         <label>
                             <input type="checkbox" value="1" name="polyline" ng-model="formData.polyline"> Show Polyline
                         </label>
-                    </div>
-                    <button type="button" class="btn btn-default" ng-click="direction()">Execute</button>
+                    </div> -->
+                    <button type="button" class="btn btn-default" ng-click="filter(formData)">Execute</button>
                 </form>
             </div>
         </div>
         <map class="overlay" center="-8.4095180,115.1889160" zoom="10" disable-default-u-i="false" disable-double-click-zoom="false" draggable="true" draggable-cursor="help" dragging-cursor="move" keyboard-shortcuts="false" tilt="45" map-type-id="ROADMAP">
-            <marker ng-repeat="data in datas" position="[{{data.Lat}}, {{data.Long}}]" id="{{data.Lat}}{{data.Long}}" title="{{data.Tanggal}} {{data.Jam}}" draggable="false" visible="true" clickable="true" icon="img/marker.png" category="{{data.MSISDN}}">
-            </marker>
-            <shape id="line" name="polyline" geodesic="true" stroke-color="#FF0000" stroke-opacity="1.0" stroke-weight="2" path="{{path}}"></shape>
+            <div ng-repeat="(key,value) in datas">
+                <marker ng-repeat="(k, data) in value" position="[{{data.Lat}}, {{data.Long}}]" id="{{data.Lat}}{{data.Long}}" title="{{data.Tanggal}} {{data.Jam}}" draggable="false" visible="true" clickable="true" icon="img/marker.png" category="{{data.MSISDN}}">
+
+                </marker>
+            </div>
+            <!-- <marker ng-repeat="(key, data) in datas" position="[{{data.Lat}}, {{data.Long}}]" id="{{data.Lat}}{{data.Long}}" title="{{data.Tanggal}} {{data.Jam}}" draggable="false" visible="true" clickable="true" icon="img/marker.png" category="{{data.MSISDN}}">
+            </marker> -->
+            <!-- <shape id="line" name="polyline" geodesic="true" stroke-color="#FF0000" stroke-opacity="1.0" stroke-weight="2" path="{{path}}"></shape> -->
         </map>
-        <!-- Table-to-load-the-data Part -->
-        <!-- <table class="table">
-            <thead>
-                <tr>
-                    <th>No</th>
-                    <th>Tanggal</th>
-                    <th>Jam</th>
-                    <th>MSISDN</th>
-                    <th>Cellname</th>
-                    <th>Regional</th>
-                    <th>Latitude</th>
-                    <th>Longitude</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr ng-repeat="data in datas">
-                    <td>{{ $index + 1 }}</td>
-                    <td>{{ data.Tanggal }}</td>
-                    <td>{{ data.Jam }}</td>
-                    <td>{{ data.MSISDN }}</td>
-                    <td>{{ data.Cellname }}</td>
-                    <td>{{ data.Regional }}</td>
-                    <td>{{ data.Lat }}</td>
-                    <td>{{ data.Long }}</td>
-                </tr>
-            </tbody>
-        </table> -->
-        <!-- End of Table-to-load-the-data Part -->
     </div>
     <!-- Load Javascript Libraries (AngularJS, JQuery, Bootstrap) -->
     <script src="js/angular.min.js"></script>
@@ -71,46 +65,64 @@
     <script src="https://maps.google.com/maps/api/js?sensor=false"></script>
     <script src="js/ng-map.min.js"></script>
     <script src="js/loading-bar.min.js"></script>
+    <script src="js/jquery-ui.js"></script>
     <!-- There will be our javascript Application here -->
     <!-- AngularJS Application Script Part -->
     <script>
     var app = angular.module('myApp', ['ngMap', 'angular-loading-bar']);
     app.controller('mapCtrl', function($scope, $http) {
-
         $scope.formData = {
-            'type': 'url',
-            'data': 'column=MSISDN&operator==&data=62811100261&limit=15',
-            'polyline': false
+            'type' : 'number',
+            'date' : '2014-10-6',
+            'number' : '62811100261',
+            'limit' : null,
+            'offset': null
         };
         /* Load 100 data secara default */
-        $http.get("http://lumen.fitra.local?type=url&limit=500")
+        /*$http.get("http://lumen.fitra.local/filter/"+$scope.formData.date+"/"+$scope.formData.number)
             .success(function(response) {
                 $scope.datas = response;
+            });*/
+
+        $http.get("http://lumen.fitra.local/phones")
+            .success(function(response) {
+                $scope.phones = response;
+                var tags = $scope.phones;
+                $( "#autocomplete" ).autocomplete({
+                  source: function( request, response ) {
+                          var matcher = new RegExp( "^" + $.ui.autocomplete.escapeRegex( request.term ), "i" );
+                          response( $.grep( tags, function( item ){
+                              return matcher.test( item );
+                          }) );
+                      },
+                    select: function(event, ui) {
+                        $scope.formData.number = ui.item.value;
+                        return false;
+                      }
+                });
             });
 
 
         /* Custom setting  */
-        $scope.save = function(formData) {
-            $scope.path = '[]';
-            if (formData.type == 'sql') {
-                $http.get("http://lumen.fitra.local?type=sql&data=" + formData.data )
+        $scope.filter = function(formData) {
+            if (formData.type == 'number') {
+                $http.get("http://lumen.fitra.local/filter/" + formData.date + "/"+formData.number )
                     .success(function(response) {
                         $scope.datas = response;
-                        drawPolyline(formData);
                     });
-            } else if (formData.type == 'url') {
-                $http.get("http://lumen.fitra.local?type=url&" + formData.data)
+            } else {
+                $http.get("http://lumen.fitra.local/filter/" + formData.date + "/"+formData.limit + "/"+ formData.offset )
                     .success(function(response) {
                         $scope.datas = response;
-                        drawPolyline(formData);
                     });
             }
         };
 
-        $scope.direction = function () {
-            $http.jsonp("https://maps.googleapis.com/maps/api/directions/json?origin=Gunung%20Sinabung&destination=Rumah%20Sakit%20Efaria%20Etaham").success(function(response) {
-                console.log(response);
-            });
+        $scope.checkFilterNumber = function() {
+            if ($scope.formData.type == 'number') {
+                return true;
+            }
+            return false;
         }
 
         function drawPolyline(formData) {
