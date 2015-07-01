@@ -74,7 +74,7 @@
             'offset': null
         };
 
-        $http.get(api+"/phones")
+        $http.jsonp(api+"/phones")
             .success(function(response) {
                 $scope.phones = response;
                 var tags = $scope.phones;
@@ -96,12 +96,12 @@
         /* Custom setting  */
         $scope.filter = function(formData) {
             if (formData.type == 'number') {
-                $http.get(api+"/filter/" + formData.date + "/"+formData.number )
+                $http.jsonp(api+"/filter/" + formData.date + "/"+formData.number )
                     .success(function(response) {
                         $scope.datas = response;
                     });
             } else {
-                $http.get(api+"/filter/" + formData.date + "/"+formData.limit + "/"+ formData.offset )
+                $http.jsonp(api+"/filter/" + formData.date + "/"+formData.limit + "/"+ formData.offset )
                     .success(function(response) {
                         $scope.datas = response;
                     });
