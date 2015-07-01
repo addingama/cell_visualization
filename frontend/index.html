@@ -37,12 +37,6 @@
                     <input type="text" name="number" placeholder="MSISDN" id="autocomplete" class="form-control" value="" required="required" ng-model="formData.number" ng-show="checkFilterNumber()">
                     <input type="text" name="limit" placeholder="Number count"  class="form-control" value="" required="required" ng-model="formData.limit" ng-show="!checkFilterNumber()">
                     <input type="text" name="offset" placeholder="Offset"  class="form-control" value="" required="required" ng-model="formData.offset" ng-show="!checkFilterNumber()">
-                    <!-- <input type="text" name="data" id="input" class="form-control" value="" required="required" ng-model="formData.data" style="width:50%;"> -->
-                    <!-- <div class="checkbox">
-                        <label>
-                            <input type="checkbox" value="1" name="polyline" ng-model="formData.polyline"> Show Polyline
-                        </label>
-                    </div> -->
                     <button type="button" class="btn btn-default" ng-click="filter(formData)">Execute</button>
                 </form>
             </div>
@@ -66,6 +60,7 @@
     <script src="js/ng-map.min.js"></script>
     <script src="js/loading-bar.min.js"></script>
     <script src="js/jquery-ui.js"></script>
+    <script src="js/config.js"></script>
     <!-- There will be our javascript Application here -->
     <!-- AngularJS Application Script Part -->
     <script>
@@ -78,13 +73,8 @@
             'limit' : null,
             'offset': null
         };
-        /* Load 100 data secara default */
-        /*$http.get("http://lumen.fitra.local/filter/"+$scope.formData.date+"/"+$scope.formData.number)
-            .success(function(response) {
-                $scope.datas = response;
-            });*/
 
-        $http.get("http://lumen.fitra.local/phones")
+        $http.get(api+"/phones")
             .success(function(response) {
                 $scope.phones = response;
                 var tags = $scope.phones;
@@ -106,12 +96,12 @@
         /* Custom setting  */
         $scope.filter = function(formData) {
             if (formData.type == 'number') {
-                $http.get("http://lumen.fitra.local/filter/" + formData.date + "/"+formData.number )
+                $http.get(api+"/filter/" + formData.date + "/"+formData.number )
                     .success(function(response) {
                         $scope.datas = response;
                     });
             } else {
-                $http.get("http://lumen.fitra.local/filter/" + formData.date + "/"+formData.limit + "/"+ formData.offset )
+                $http.get(api+"/filter/" + formData.date + "/"+formData.limit + "/"+ formData.offset )
                     .success(function(response) {
                         $scope.datas = response;
                     });
