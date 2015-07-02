@@ -12,12 +12,7 @@
 */
 ini_set('memory_limit','256M');
 $app->get('/', 'App\Http\Controllers\MapController@home');
-$app->get('/index', 'App\Http\Controllers\MapController@index');
-$app->get('/tanggal', 'App\Http\Controllers\MapController@getDates');
-$app->get('/tanggal/{date}/phones', 'App\Http\Controllers\MapController@getPhoneByDate');
 $app->get('/phones', 'App\Http\Controllers\MapController@getPhones');
-
-
 $app->get('/filter/{date}/{number}', 'App\Http\Controllers\MapController@filterNumber');
 $app->get('/filter/{date}/{numbers}/{start}', 'App\Http\Controllers\MapController@filterRange');
 

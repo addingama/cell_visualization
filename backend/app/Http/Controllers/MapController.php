@@ -16,45 +16,6 @@ class MapController extends Controller
         return response()->json($result);
     }
 
-    public function index(Request $request) {
-        $query = 'select * from data';
-        if ($request->has('type')) {
-            if ($request->input('type') == 'sql') {
-                $query = $request->input('data');
-            } else {
-                $query = 'select * from data ';
-
-                if ($request->has('column') && $request->has('data') && $request->has('operator')) {
-                    $query .= ' where ' . $request->input('column') . ' ' . $request->input('operator') . ' "' . $request->input('data') . '"  ';
-                }
-                $query .= ' order by JAM ASC ';
-                if ($request->has('limit')) {
-                    $query .= ' limit ' . $request->input('limit');
-                }
-            }
-        }
-        $result = DB::select($query);
-        return response()->json($result);
-    }
-
-    public function getDates(Request $request) {
-        $dates = DB::table('data')
-                    ->select('tanggal')
-                    ->groupBy('tanggal')
-                    ->get();
-
-        return $dates;
-    }
-    public function getPhoneByDate(Request $request, $date) {
-        $dates = DB::table('data')
-                    ->select('MSISDN')
-                    ->where('tanggal', '=', $date)
-                    ->groupBy('MSISDN')
-                    ->get();
-
-        return count($dates);
-    }
-
     public function getPhones(Request $request) {
         $phones = DB::table('numbers')
                     ->select('*')
@@ -70,9 +31,11 @@ class MapController extends Controller
 
     public function filterNumber(Request $request, $date, $number) {
         $result[$number] = DB::table('data')
-                    ->select('*')
+                    ->select('Tanggal', 'Jam', 'Lat', 'Long',  'MSISDN')
                     ->where('tanggal', '=', $date)
                     ->where('MSISDN', '=', $number)
+                    ->groupBy('Lat')
+                    // ->orderBy('Jam', 'ASC')
                     ->get();
 
 
@@ -92,7 +55,9 @@ class MapController extends Controller
         }
 
         $data = DB::table('data')
+                ->select('Tanggal', 'Jam', 'Lat', 'Long', 'MSISDN')
                 ->whereIn('MSISDN', $p)
+                ->groupBy('Lat')
                 ->get();
 
         // prepare result array
