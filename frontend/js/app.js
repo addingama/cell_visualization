@@ -80,14 +80,6 @@ app.controller('mapCtrl', function($scope, $http) {
             $scope.paths.push(path);
         }
            console.log($scope.paths);
-        // angular.forEach(response, function(number, key) {
-        //     path.length = 0;
-        //     console.log(number);
-        //     angular.forEach(number, function(val, index) {
-        //             path.push(new google.maps.LatLng(val.Lat, val.Long));
-        //     });
-        //     $scope.paths.push(path);
-        // });
     };
 
     $scope.getRandomColor = function() {
