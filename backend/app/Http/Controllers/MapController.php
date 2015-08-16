@@ -3,7 +3,10 @@
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Http\Controllers\Controller;
-use DB;
+use App\Data;
+use App\Phone;
+use App\Pivot;
+use App\DataBali;
 
 class MapController extends Controller
 {
@@ -17,34 +20,29 @@ class MapController extends Controller
     }
 
     public function getPhones(Request $request) {
-        $phones = DB::table('numbers')
-                    ->select('*')
-                    ->get();
+        $phones = Data::select('MSISDN')
+                        ->get();
 
         $result = [];
         foreach ($phones as $key => $value) {
             array_push($result, $value->MSISDN);
         }
 
-        return $result;
+        return response()->json($result);
     }
 
     public function filterNumber(Request $request, $date, $number) {
-        $result[$number] = DB::table('data')
-                    ->select('Tanggal', 'Jam', 'Lat', 'Long',  'MSISDN')
-                    ->where('tanggal', '=', $date)
-                    ->where('MSISDN', '=', $number)
-                    ->groupBy('Lat')
-                    // ->orderBy('Jam', 'ASC')
-                    ->get();
-
+        $result[$number] = Data::select('Tanggal', 'Jam', 'Lat', 'Long',  'MSISDN')
+                            ->where('tanggal', '=', $date)
+                            ->where('MSISDN', '=', $number)
+                            ->groupBy('Lat')
+                            ->get();
 
         return $result;
     }
 
     public function filterRange(Request $request, $date, $numbers, $start) {
-        $phones = DB::table('numbers')
-                    ->select('*')
+        $phones = Phone::select('MSISDN')
                     ->skip($start)
                     ->take($numbers)
                     ->get();
@@ -54,8 +52,7 @@ class MapController extends Controller
             array_push($p, $value->MSISDN);
         }
 
-        $data = DB::table('data')
-                ->select('Tanggal', 'Jam', 'Lat', 'Long', 'MSISDN')
+        $data = Data::select('Tanggal', 'Jam', 'Lat', 'Long', 'MSISDN')
                 ->whereIn('MSISDN', $p)
                 ->groupBy('Lat')
                 ->get();
@@ -69,5 +66,36 @@ class MapController extends Controller
         }
 
         return $result;
+    }
+
+    public function generatePivot(Request $request, $numbers, $start) {
+        // SELECT maps.`data_bali`.`Kec` AS `Kecamatan`, COUNT(maps.`data_bali`.`Kec`) AS `jumlah` FROM maps.`data_bali` WHERE `MSISDN` = '628111000225' GROUP BY maps.`data_bali`.`Kec`;
+        $phones = DataBali::skip($start)
+                        ->take($numbers)
+                        ->get();
+
+        // kosongkan tabel pivot
+        Pivot::truncate();
+
+        foreach ($phones as $key => $value) {
+            $phone = Pivot::select('MSISDN')
+                        ->where('MSISDN', '=', $value->MSISDN)
+                        ->first();
+
+            if ($phone == null) {
+                $p = new Pivot();
+                $p->MSISDN = $value->MSISDN;
+            } else {
+                $p = Pivot::find($value->MSISDN);
+            }
+            $kec = $value->Kec;
+            $p->$kec = $p->$kec + 1;
+            $p->save(); 
+        }
+
+        $result = [
+            'message' => 'DONE'
+        ];
+        return response()->json($result);
     }
 }

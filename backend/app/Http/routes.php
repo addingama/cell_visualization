@@ -11,8 +11,10 @@
 |
 */
 ini_set('memory_limit','256M');
+ini_set('max_execution_time', 300);
 $app->get('/', 'App\Http\Controllers\MapController@home');
 $app->get('/phones', 'App\Http\Controllers\MapController@getPhones');
 $app->get('/filter/{date}/{number}', 'App\Http\Controllers\MapController@filterNumber');
 $app->get('/filter/{date}/{numbers}/{start}', 'App\Http\Controllers\MapController@filterRange');
 
+$app->get('/generatePivot/{numbers}/{start}', 'App\Http\Controllers\MapController@generatePivot');
