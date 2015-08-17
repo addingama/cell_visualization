@@ -98,8 +98,9 @@ class MapController extends Controller
             }
 
             $result = [
-                'message' => 'DONE Pivoting ' . $numbers . ' data start from ' . $start 
-            ];
+                'message' => 'DONE Pivoting ' . $numbers . ' data start from ' . $start,
+                'total' => 1686475            
+                ];
         } catch (Exception $e) {
             DB::rollback();
             $result = [
