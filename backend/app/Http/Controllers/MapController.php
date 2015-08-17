@@ -7,6 +7,7 @@ use App\Data;
 use App\Phone;
 use App\Pivot;
 use App\DataBali;
+use DB;
 
 class MapController extends Controller
 {
@@ -36,6 +37,7 @@ class MapController extends Controller
                             ->where('tanggal', '=', $date)
                             ->where('MSISDN', '=', $number)
                             ->groupBy('Lat')
+                            ->orderBy('Jam', 'ASC')
                             ->get();
 
         return $result;
@@ -55,6 +57,7 @@ class MapController extends Controller
         $data = Data::select('Tanggal', 'Jam', 'Lat', 'Long', 'MSISDN')
                 ->whereIn('MSISDN', $p)
                 ->groupBy('Lat')
+                ->orderBy('Jam', 'ASC')
                 ->get();
 
         // prepare result array
@@ -75,27 +78,35 @@ class MapController extends Controller
                         ->get();
 
         // kosongkan tabel pivot
-        Pivot::truncate();
+        // Pivot::truncate();
+        DB::beginTransaction();
+        try {
+            foreach ($phones as $key => $value) {
+                $phone = Pivot::select('MSISDN')
+                            ->where('MSISDN', '=', $value->MSISDN)
+                            ->first();
 
-        foreach ($phones as $key => $value) {
-            $phone = Pivot::select('MSISDN')
-                        ->where('MSISDN', '=', $value->MSISDN)
-                        ->first();
-
-            if ($phone == null) {
-                $p = new Pivot();
-                $p->MSISDN = $value->MSISDN;
-            } else {
-                $p = Pivot::find($value->MSISDN);
+                if ($phone == null) {
+                    $p = new Pivot();
+                    $p->MSISDN = $value->MSISDN;
+                } else {
+                    $p = Pivot::find($value->MSISDN);
+                }
+                $kec = $value->Kec;
+                $p->$kec = $p->$kec + 1;
+                $p->save(); 
             }
-            $kec = $value->Kec;
-            $p->$kec = $p->$kec + 1;
-            $p->save(); 
-        }
 
-        $result = [
-            'message' => 'DONE'
-        ];
+            $result = [
+                'message' => 'DONE Pivoting ' . $numbers . ' data start from ' . $start 
+            ];
+        } catch (Exception $e) {
+            DB::rollback();
+            $result = [
+                'message' => 'Error rolling back' 
+            ];
+        }
+        DB::commit();
         return response()->json($result);
     }
 }
