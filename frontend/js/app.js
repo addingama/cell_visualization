@@ -9,7 +9,13 @@ app.controller('mapCtrl', function($scope, $http) {
         'limit' : 2,
         'offset': 0
     };
+    $scope.markerType = 'All';
+    // $scope.markerGroup = [];
 
+    // for (var i = 0; i < 24; i++) {
+    //     $scope.markerGroup[i] = [];
+    // };
+    // console.log($scope.markerGroup);
     $scope.getRandomSpan = function(){
         return Math.floor((Math.random()*100)+1);
     }
@@ -79,7 +85,7 @@ app.controller('mapCtrl', function($scope, $http) {
             }
             $scope.paths.push(path);
         }
-           console.log($scope.paths);
+        console.log($scope.map);
     };
 
     $scope.getRandomColor = function() {
@@ -144,4 +150,20 @@ app.controller('mapCtrl', function($scope, $http) {
         infowindow.open($scope.map);
      };
 
+    $scope.toggleGroup = function() {
+        console.log($scope.markerType);
+        if ($scope.markerType != 'All') {
+            angular.forEach($scope.map.markers, function(value, key) {
+                if (value.type != $scope.markerType) {
+                    value.setVisible(false);
+                } else {
+                    value.setVisible(true);
+                }
+            });
+        } else {
+            angular.forEach($scope.map.markers, function(value, key) {
+                value.setVisible(true);
+            });
+        }
+    }
 });

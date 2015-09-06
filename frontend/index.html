@@ -34,13 +34,40 @@
                     <input type="text" name="limit" placeholder="Number count"  class="form-control" value="" required="required" ng-model="formData.limit" ng-show="!checkFilterNumber()">
                     <input type="text" name="offset" placeholder="Offset"  class="form-control" value="" required="required" ng-model="formData.offset" ng-show="!checkFilterNumber()">
                     <button type="button" class="btn btn-default" ng-click="filter(formData)">Execute</button>
-                    <button type="button" class="btn btn-default" ng-click="logPath()">Show Polylines</button>
+                    <button type="button" class="btn btn-default" ng-click="logPath()" ng-show="checkFilterNumber()">Show Polylines</button>
+                    <select name="type" id="timefilter" class="form-control" required="required" ng-show="!checkFilterNumber()" ng-model="markerType" ng-change="toggleGroup()">
+                        <option value="All">All Time</option>
+                        <option value="00:00:00" >00</option>
+                        <option value="01:00:00" >1</option>
+                        <option value="02:00:00" >2</option>
+                        <option value="03:00:00" >3</option>
+                        <option value="04:00:00" >4</option>
+                        <option value="05:00:00" >5</option>
+                        <option value="06:00:00" >6</option>
+                        <option value="07:00:00" >7</option>
+                        <option value="08:00:00" >8</option>
+                        <option value="09:00:00" >9</option>
+                        <option value="10:00:00" >10</option>
+                        <option value="11:00:00" >11</option>
+                        <option value="12:00:00" >12</option>
+                        <option value="13:00:00" >13</option>
+                        <option value="14:00:00" >14</option>
+                        <option value="15:00:00" >15</option>
+                        <option value="16:00:00" >16</option>
+                        <option value="17:00:00" >17</option>
+                        <option value="18:00:00" >18</option>
+                        <option value="19:00:00" >19</option>
+                        <option value="20:00:00" >20</option>
+                        <option value="21:00:00" >21</option>
+                        <option value="22:00:00" >22</option>
+                        <option value="23:00:00" >23</option>
+                    </select>
                 </form>
             </div>
         </div>
         <map class="overlay" center="-8.4095180,115.1889160" zoom="10" disable-default-u-i="false" disable-double-click-zoom="false" draggable="true" draggable-cursor="help" dragging-cursor="move" keyboard-shortcuts="false" tilt="45" map-type-id="ROADMAP">
             <div ng-repeat="(key,value) in datas">
-                <marker ng-repeat="(k, data) in value" position="[{{data.Lat}}, {{data.Long}}]" id="marker_{{$index}}_{{data.MSISDN}}" title="{{data.Tanggal}} {{data.Jam}}" draggable="false" visible="true"  icon="{{getMarker(value, $index)}}" category="{{data.MSISDN}}" on-click="showInfoWindow(event, data)">
+                <marker ng-repeat="(k, data) in value" position="[{{data.Lat}}, {{data.Long}}]" id="marker_{{$index}}_{{data.MSISDN}}" title="{{data.Tanggal}} {{data.Jam}}" draggable="false" visible="true"  icon="{{getMarker(value, $index)}}" category="{{data.MSISDN}}" type="{{data.Jam}}" on-click="showInfoWindow(event, data)">
                 </marker>
 
             </div>
